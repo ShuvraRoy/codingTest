@@ -17,7 +17,23 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('products.index');
+        $data = [];
+        $data['products'] = Product::get(['id', 'title','created_at','description']);
+        foreach ($data['products'] as $row) {
+            $id = $row->id;
+
+            $data['productVariants'] = ProductVariant::where('product_id', $id)
+                ->get(['id', 'variant']);
+            foreach ($data['productVariants'] as $pricerow) {
+                $priceid = $pricerow->id;
+
+                $data['productVariantPrice'] = ProductVariantPrice::where('product_variant_one', $priceid )->orwhere('product_variant_two', $priceid)
+                    ->get(['id', 'price']);
+                //dd($data['productVariantPrice']);
+            }
+            //dd($data['variant']);
+        }
+        return view('products.index',$data);
     }
 
     /**
